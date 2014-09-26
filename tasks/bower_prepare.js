@@ -16,7 +16,6 @@ module.exports = function(grunt)
   grunt.registerMultiTask('bower_prepare', 'Copying bower components to project', function()
   {
     var data = this.data;
-    // Merge task-specific and/or target-specific options with these defaults.
     var options = {
       dest: data.dest || './',
       sort: data.sort || 'types',
@@ -100,9 +99,20 @@ module.exports = function(grunt)
       return /([^\?#]*)(\?|#)?/.exec(filename)[1];
     };
 
-    var getPathByExt = function (filename)
+    var getPathByExt = function (filename, packetName)
     {
+      if (!packetName) {
+        packetName = '';
+      }
+      else {
+        packetName += '/';
+      }
       var ext = getCleanFileName(filename.split('.').pop().toLowerCase());
+      if (ext === 'map') {
+        ext = filename.split('.');
+        ext.pop();
+        ext = getCleanFileName(ext.pop().toLowerCase());
+      }
       var dest;
 
       if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'wbmp', 'eps'].indexOf(ext) !== -1) {
@@ -121,7 +131,7 @@ module.exports = function(grunt)
       if (!dest) {
         return false;
       }
-      return addSlashAdDir(dest) + filename.split('/').pop();
+      return addSlashAdDir(dest) + packetName + filename.split('/').pop();
     };
 
     var normilizePath = function (filepath)
@@ -140,10 +150,11 @@ module.exports = function(grunt)
       return newpath.join('/');
     };
 
-    var copyFile = function (filepath, filename)
+    var copyFile = function (filepath, filename, packet)
     {
       filename = getCleanFileName(filename);
-      grunt.file.copy(addSlashAdDir(filepath) + filename, getPathByExt(filename));
+      grunt.log.writeln(addSlashAdDir(filepath) + filename, '→', getPathByExt(filename, packet));
+      grunt.file.copy(addSlashAdDir(filepath) + filename, getPathByExt(filename, packet));
     };
 
     var createLocalPath = function (source, target)
@@ -153,12 +164,15 @@ module.exports = function(grunt)
       source.pop();
       var targetFileName = target.pop();
       var localPath = [];
-      source.forEach(function (element)
+      var duplicateSource = source.join('~~~').split('~~~');
+      duplicateSource.forEach(function (element)
       {
         var index = source.indexOf(element);
         if (target[index] === element) {
           source.splice(index, 1);
           target.splice(index, 1);
+        }
+        else {
           return false;
         }
       });
@@ -170,46 +184,71 @@ module.exports = function(grunt)
       {
         localPath.push(element);
       });
-      return localPath.join('/') + '/' + targetFileName;
+      return localPath.join('/') + (localPath.length ? '/' : '') + targetFileName;
     };
 
-    var getEnrichmentByParsingCSS = function (filepath, files)
+    var getEnrichmentByParsingCSS = function (filepath, files, packet)
     {
       var enrichFiles = [];
       var fileContent;
       files.forEach(function (filename)
       {
-        var ext = filename.split('.').pop().toLowerCase();
+        var ext = getCleanFileName(filename.split('.').pop().toLowerCase());
         if (ext === 'css') { // filename css-file
-          fileContent = grunt.file.read(filepath + filename);
+          if (grunt.file.exists(filepath + filename + '.map')) {
+            files.push(filename + '.map');
+          }
+          fileContent = grunt.file.read(filepath + getCleanFileName(filename));
           var cssFilePath = (filepath + filename).split('/');
           cssFilePath.pop();
           cssFilePath = cssFilePath.join('/') +'/';
           var url;
           var abspath;
-          var regexp = /url\(["']?([^'"\)]*)["']?\)/ig;
-          var foundedIncludes = [];
-          while (url = regexp.exec(fileContent)) {
-            regexp.lastIndex;
-            url = url[1]; // found image or font
+          var regexpUrl = /url\(["']?([^'"\)]*)["']?\)/ig;
+          var foundedSources = [];
+          while (url = regexpUrl.exec(fileContent)) {
+            regexpUrl.lastIndex;
+            url = url[1].trim(); // found image or font
             abspath = normilizePath(cssFilePath + url);
-            var newLocalPath = createLocalPath(getPathByExt(filename), getPathByExt(url));
-            foundedIncludes.push({filename: url, localPath: newLocalPath});
+            foundedSources.push({filename: url, localPath: createLocalPath(getPathByExt(filename, packet), getPathByExt(url, packet))});
             files.push(abspath.substr(filepath.length));
           }
-          if (foundedIncludes.length) {
-            enrichFiles.push({filename: getPathByExt(filename), sources: foundedIncludes});
+          if (foundedSources.length) {
+            enrichFiles.push({filename: getPathByExt(filename, packet), sources: foundedSources});
+          }
+          var imp;
+          var regexpImport = /@import\s*(url\()?(["']?)([^'\"\)]*)/ig;
+          var foundedImports = [];
+          while (imp = regexpImport.exec(fileContent)) {
+            regexpImport.lastIndex;
+            imp = imp[3].trim(); // found import css-file
+            abspath = normilizePath(cssFilePath + imp);
+            var subFiles = [abspath.substr(filepath.length)];
+            var subEnrichFiles = getEnrichmentByParsingCSS(filepath, subFiles, packet);
+            subFiles.forEach(function (element)
+            {
+              files.push(element);
+            });
+            subEnrichFiles.forEach(function (element)
+            {
+              enrichFiles.push(element);
+            });
+            foundedImports.push({filename: imp, localPath: createLocalPath(getPathByExt(filename, packet), getPathByExt(imp, packet))});
+            files.push(abspath.substr(filepath.length));
+          }
+          if (foundedImports.length) {
+            enrichFiles.push({filename: getPathByExt(filename, packet), sources: foundedImports});
           }
         }
       });
       return enrichFiles;
     };
 
-    var replaceEnrichmentByParsingCSS = function (enrichFiles)
+    var replaceEnrichment = function (enrichFiles)
     {
       enrichFiles.forEach(function (item)
       {
-        var fileContent = grunt.file.read(item.filename);
+        var fileContent = grunt.file.read(getCleanFileName(item.filename));
         var replaceFilenames = [];
         item.sources.forEach(function (fileData)
         {
@@ -235,17 +274,15 @@ module.exports = function(grunt)
         {
           fileContent = fileContent.split(fileData.filename).join(fileData.localPath);
         });
-        grunt.file.write(item.filename, fileContent);
+        grunt.file.write(getCleanFileName(item.filename), fileContent);
       });
     };
 
     var mainFiles;
     grunt.file.expand(getBowerDirectory() + '/*').forEach(function (filepath)
     {
+      var pack = filepath.split('/').pop();
       filepath += '/';
-      var pack = filepath.split('/');
-      pack.pop();
-      pack = pack.pop();
       mainFiles = getBowerJSON(filepath).main;
       if (typeof mainFiles === 'string') {
         mainFiles = [mainFiles];
@@ -259,12 +296,12 @@ module.exports = function(grunt)
           });
         });
       }
-      var enrichFiles = getEnrichmentByParsingCSS(filepath, mainFiles);
+      var enrichFiles = getEnrichmentByParsingCSS(filepath, mainFiles, pack);
       mainFiles.forEach(function (filename)
       {
-        copyFile(filepath, filename);
+        copyFile(filepath, filename, pack);
       });
-      replaceEnrichmentByParsingCSS(enrichFiles);
+      replaceEnrichment(enrichFiles);
     });
 
   });
