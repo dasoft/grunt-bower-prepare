@@ -153,8 +153,13 @@ module.exports = function(grunt)
     var copyFile = function (filepath, filename, packet)
     {
       filename = getCleanFileName(filename);
-      grunt.log.writeln(addSlashAdDir(filepath) + filename, '→', getPathByExt(filename, packet));
-      grunt.file.copy(addSlashAdDir(filepath) + filename, getPathByExt(filename, packet));
+      if (grunt.file.exists(addSlashAdDir(filepath) + filename)) {
+        grunt.log.writeln(normilizePath(filepath + filename), '→', normilizePath(getPathByExt(filename, packet)));
+        grunt.file.copy(normilizePath(filepath + filename), normilizePath(getPathByExt(filename, packet)));
+      }
+      else {
+        grunt.log.writeln('File not found: '+ normilizePath(addSlashAdDir(filepath) + filename));
+      }
     };
 
     var createLocalPath = function (source, target)
@@ -197,6 +202,9 @@ module.exports = function(grunt)
         if (ext === 'css') { // filename css-file
           if (grunt.file.exists(filepath + filename + '.map')) {
             files.push(filename + '.map');
+          }
+          if (!grunt.file.exists(filepath + getCleanFileName(filename))) {
+            return;
           }
           fileContent = grunt.file.read(filepath + getCleanFileName(filename));
           var cssFilePath = (filepath + filename).split('/');
