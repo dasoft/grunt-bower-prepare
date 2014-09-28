@@ -224,8 +224,10 @@ module.exports = function(grunt)
             regexpUrl.lastIndex;
             url = url[1].trim(); // found image or font
             abspath = normilizePath(cssFilePath + url);
-            foundedSources.push({filename: url, localPath: createLocalPath(getPathByExt(filename, packet), getPathByExt(url, packet))});
-            files.push(abspath.substr(filepath.length));
+            if (grunt.file.exists(abspath)) {
+              foundedSources.push({filename: url, localPath: createLocalPath(getPathByExt(filename, packet), getPathByExt(url, packet))});
+              files.push(abspath.substr(filepath.length));
+            }
           }
           if (foundedSources.length) {
             enrichFiles.push({filename: getPathByExt(filename, packet), sources: foundedSources});
