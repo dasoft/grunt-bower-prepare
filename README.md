@@ -103,3 +103,13 @@ Before you run this task the next dests will be removed:
 * `libs/scss`
 
 And new files will copy again.
+
+### What if you don't set `dest`
+
+If you don't set `dest` then will be works technologies dest, like `imgs_dest` or `fonts`.
+
+### SVG may be image and font
+
+If in path exists the `font` word, that svg means font and it will be copied at font dest.
+
+For example, bootstrap has `dist/fonts/glyphicons-halfling-regular.svg`. This file will be copied to the font dest.
