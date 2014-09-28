@@ -17,7 +17,7 @@ module.exports = function(grunt)
   {
     var data = this.data;
     var options = {
-      dest: data.dest || './',
+      dest: data.dest || false,
       sort: data.sort || 'types',
       clean_before: data.clean_before || false
     };
@@ -54,7 +54,7 @@ module.exports = function(grunt)
 
     var returnOption = function (ext)
     {
-      return options[ext +'_dest'] || (typeof options.dest === 'string' && addSlashAdDir(options.dest) + ext) || '';
+      return options[ext +'_dest'] || (typeof options.dest === 'string' && addSlashAdDir(options.dest) + ext) || false;
     };
 
     if (options.clean_before) {
@@ -154,8 +154,11 @@ module.exports = function(grunt)
     {
       filename = getCleanFileName(filename);
       if (grunt.file.exists(addSlashAdDir(filepath) + filename)) {
-        grunt.log.writeln(normilizePath(filepath + filename), '→', normilizePath(getPathByExt(filename, packet)));
-        grunt.file.copy(normilizePath(filepath + filename), normilizePath(getPathByExt(filename, packet)));
+        // console.log(filename, getPathByExt(filename, packet));
+        if (getPathByExt(filename, packet)) {
+          grunt.log.writeln(normilizePath(filepath + filename), '→', normilizePath(getPathByExt(filename, packet)));
+          grunt.file.copy(normilizePath(filepath + filename), normilizePath(getPathByExt(filename, packet)));
+        }
       }
       else {
         grunt.log.writeln('File not found: '+ normilizePath(addSlashAdDir(filepath) + filename));
@@ -199,6 +202,9 @@ module.exports = function(grunt)
       files.forEach(function (filename)
       {
         var ext = getCleanFileName(filename.split('.').pop().toLowerCase());
+        if (!getPathByExt(filename, packet)) {
+          return;
+        }
         if (ext === 'css') { // filename css-file
           if (grunt.file.exists(filepath + filename + '.map')) {
             files.push(filename + '.map');
