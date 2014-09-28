@@ -1,0 +1,47 @@
+{
+  "name": "grunt-bower-prepare",
+  "description": "Copying bower components to project",
+  "version": "0.1.0",
+  "homepage": "https://github.com/makingoff/grunt-bower-prepare",
+  "author": {
+    "name": "Aleksei Chikin <mail@makingoff.name>",
+    "email": "mail@makingoff.name",
+    "url": "makingoff.name"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/makingoff/grunt-bower-prepare.git"
+  },
+  "bugs": {
+    "url": "https://github.com/makingoff/grunt-bower-prepare/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/makingoff/grunt-bower-prepare/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "tasks/bower_prepare.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "rimraf": "~2.2.1"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt": "~0.4.5",
+    "grunt-contrib-copy": "^0.6.0"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.5"
+  },
+  "keywords": [
+    "grunt gruntplugin bower components"
+  ]
+}
