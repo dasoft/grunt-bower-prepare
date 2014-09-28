@@ -23,26 +23,43 @@ module.exports = function(grunt) {
       },
     },
 
-    // Before generating any new files, remove any previously-created files.
-    clean: {
-      tests: ['tmp'],
-      def: ['packets_dest', 'types_dest']
-    },
-
     // Configuration to be run (and then tested).
     bower_prepare: {
-      dev: {
-        sort: 'packets',
-        dest: 'build',
+      example1: {
+        dest: 'tmp/example1'
+      },
+      example2: {
+        js_dest: 'tmp/example2/javascripts/libs',
         clean_before: true
       },
-      build: {
-        dest: 'build2/',
-        css_dest: 'build2/css/libs',
-        clean_before: true,
-        additionals: {
-          iCheck: ['skins/flat/blue*']
-        }
+      example3: {
+        dest: 'tmp/example3',
+        css_dest: 'tmp/example3/stylesheets'
+      }
+      // example2: {
+      //   dest: 'example1/',
+      //   css_dest: 'build2/css/libs',
+      //   clean_before: true,
+      //   additionals: {
+      //     iCheck: ['skins/flat/blue*']
+      //   }
+      // },
+      // example3: {
+      //   js_dest: 'example1/javascripts/',
+      //   less_dest: 'less/libs'
+      // }
+    },
+
+    clean: {
+      tests: ['tmp']
+    },
+
+    copy: {
+      test: {
+        files: [
+          {cwd: 'test/trash/', src: ['trash.js'], expand: true, dest: 'tmp/example1/js/', flatten: true, filter: 'isFile'},
+          {cwd: 'test/trash/', src: ['trash.js'], expand: true, dest: 'tmp/example2/javascripts/libs/', flatten: true, filter: 'isFile'}
+        ]
       }
     },
 
@@ -59,11 +76,12 @@ module.exports = function(grunt) {
   // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-nodeunit');
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'bower_prepare', 'nodeunit']);
+  grunt.registerTask('test', ['clean', 'copy', 'bower_prepare', 'nodeunit']);
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);
