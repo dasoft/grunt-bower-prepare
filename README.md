@@ -21,7 +21,7 @@ grunt.loadNpmTasks('grunt-bower-prepare');
 
 ### Overview
 
-There are support technologics:
+There are supporting technologies:
 * imgs
 * fonts
 * js
@@ -52,12 +52,12 @@ grunt.initConfig({
 `undescore.js` from package with the same name will copy to `libs/js/undescore/undescore.js`.
 And `bootstrap.css` will copy to `libs/css/bootstrap/bootstrap.css`.
 
-### What exactly will copied to my dest
+### What exactly will be copied to my dest
 
-This plugin watch the main section at `bower.json`. Packages it looking at `.bowerrc` if it exists.
-If some css file has `@import` plugin will copy this file too. Also, all images and fonts at `url()` at css files.
+This plugin watch the main section at `bower.json`. Plugin looking packages in `.bowerrc`, if it exists.
+If some css file has `@import` then plugin will copy this file too. As well as all images and fonts at `url()` at css files.
 
-If you don't like default path to javascripts files, you can set your path. For example:
+If you don't like default javascript files path, you can set your own. For example:
 
 ```js
 bower_prepare: {
@@ -69,13 +69,15 @@ bower_prepare: {
 }
 ```
 
-Simple syntax: `technologic_dest` and path. The path you get at `example2` is `libs/javascripts/underscore/underscore.js`.
+Result: `libs/javascripts/underscore/underscore.js` and `libs/stylesheets/bootstrap/bootstrap.css`.
+
+Simple syntax: `technologic_dest` and path.
 
 ### Cleaning up your dest
 
-If you remove some package you want to remove them from your dest too. The `clean_before` will help you.
-Before you run `bower_prepare` task all dest of your technologics will be cleaned.
-Not your dest, only dests of technologics.
+If you remove some package then you want to remove them from your dest too. The `clean_before` will help you.
+Before you run `bower_prepare` task, all dest of your technologies will be cleaned.
+Not your dest, only dests of technologies.
 
 ```js
 bower_prepare: {
@@ -100,4 +102,4 @@ Before you run this task the next dests will be removed:
 * `libs/sass`
 * `libs/scss`
 
-And new files will copy againg.
+And new files will copy again.
