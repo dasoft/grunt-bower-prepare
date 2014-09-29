@@ -22,12 +22,12 @@ grunt.loadNpmTasks('grunt-bower-prepare');
 ### Overview
 
 There are supporting technologies:
-* imgs
+* images
 * fonts
 * js
 * coffee
 * css
-* styl
+* stylus
 * less
 * sass
 * scss
@@ -49,7 +49,7 @@ grunt.initConfig({
 })
 ```
 
-`undescore.js` from package with the same name will copy to `libs/js/undescore/undescore.js`.
+`underscore.js` from package with the same name will copy to `libs/js/underscore/underscore.js`.
 And `bootstrap.css` will copy to `libs/css/bootstrap/bootstrap.css`.
 
 ### What exactly will be copied to my dest
@@ -92,12 +92,12 @@ bower_prepare: {
 
 Before you run this task the next dests will be removed:
 
-* `libs/imgs`
+* `libs/images`
 * `libs/fonts`
 * `libs/js_files`
 * `libs/coffee`
 * `libs/css`
-* `libs/styl`
+* `libs/stylus`
 * `libs/less_files`
 * `libs/sass`
 * `libs/scss`
@@ -106,7 +106,7 @@ And new files will copy again.
 
 ### What if you don't set `dest`
 
-If you don't set `dest` then will be works technologies dest, like `imgs_dest` or `fonts`.
+If you don't set `dest` then will be works technologies dest, like `images_dest` or `fonts`.
 
 ### SVG may be image and font
 

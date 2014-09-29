@@ -23,14 +23,14 @@ module.exports = function(grunt)
     };
 
     var technologics = [
-      'imgs',
+      'images',
       'js',
       'css',
       'scss',
       'less',
       'sass',
       'coffee',
-      'styl',
+      'stylus',
       'fonts'
     ];
 
@@ -116,13 +116,16 @@ module.exports = function(grunt)
       var dest;
 
       if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'wbmp', 'eps'].indexOf(ext) !== -1) {
-        dest = returnOption('imgs');
+        dest = returnOption('images');
       }
-      if (['js', 'css', 'scss', 'less', 'sass', 'coffee', 'styl'].indexOf(ext) !== -1) {
+      if (['js', 'css', 'scss', 'less', 'sass', 'coffee'].indexOf(ext) !== -1) {
         dest = returnOption(ext);
       }
+      if (ext === 'styl') {
+        dest = returnOption('stylus');
+      }
       if (ext === 'svg') {
-        dest = filename.indexOf('font') !== -1 ? returnOption('fonts') : returnOption('imgs');
+        dest = filename.indexOf('font') !== -1 ? returnOption('fonts') : returnOption('images');
       }
       if (['eot', 'ttf', 'woff'].indexOf(ext) !== -1) {
         dest = returnOption('fonts');
