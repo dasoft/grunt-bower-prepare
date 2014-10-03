@@ -113,3 +113,25 @@ If you don't set `dest` then will be works technologies dest, like `images_dest`
 If in path exists the `font` word, that svg means font and it will be copied at font dest.
 
 For example, bootstrap has `dist/fonts/glyphicons-halfling-regular.svg`. This file will be copied to the font dest.
+
+### Include and exclude additional files
+
+`include` to add some files than not exists at `main` section
+`exclude` to exclude some files you don't want to see
+
+```js
+bower_prepare: {
+  example4: {
+    dest: 'libs',
+    include: ['pack1/skins/blue*'],
+    exclude: ['pack2/styles/load*', 'pack2/scripts/load*']
+  }
+}
+```
+
+## Changelog
+
+### 2014-10-03 v0.1.2
+
+* `include` option
+* `exclude` option

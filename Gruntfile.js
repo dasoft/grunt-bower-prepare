@@ -30,11 +30,13 @@ module.exports = function(grunt) {
       },
       example2: {
         js_dest: 'tmp/example2/javascripts/libs',
-        clean_before: true
+        clean_before: true,
+        include: ['./backbone/index.j*']
       },
       example3: {
         dest: 'tmp/example3',
-        css_dest: 'tmp/example3/stylesheets'
+        css_dest: 'tmp/example3/stylesheets',
+        exclude: ['social-likes/social-likes_*l*']
       }
       // example2: {
       //   dest: 'example1/',

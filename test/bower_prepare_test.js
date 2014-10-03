@@ -59,6 +59,7 @@ exports.bower_prepare = {
 
     var equalFiles = [
       {actual: 'tmp/example2/javascripts/libs/backbone/backbone.js', expected: 'test/example2/javascripts/libs/backbone/backbone.js'},
+      {actual: 'tmp/example2/javascripts/libs/backbone/index.js', expected: 'test/example2/javascripts/libs/backbone/index.js'},
       {actual: 'tmp/example2/javascripts/libs/fotorama/fotorama.js', expected: 'test/example2/javascripts/libs/fotorama/fotorama.js'},
       {actual: 'tmp/example2/javascripts/libs/jquery/jquery.js', expected: 'test/example2/javascripts/libs/jquery/jquery.js'},
       {actual: 'tmp/example2/javascripts/libs/social-likes/social-likes.js', expected: 'test/example2/javascripts/libs/social-likes/social-likes.js'},
@@ -83,8 +84,6 @@ exports.bower_prepare = {
     var equalFiles = [
       {actual: 'tmp/example3/stylesheets/fotorama/fotorama.css', expected: 'test/example3/stylesheets/fotorama/fotorama.css'},
       {actual: 'tmp/example3/stylesheets/social-likes/social-likes_birman.css', expected: 'test/example3/stylesheets/social-likes/social-likes_birman.css'},
-      {actual: 'tmp/example3/stylesheets/social-likes/social-likes_classic.css', expected: 'test/example3/stylesheets/social-likes/social-likes_classic.css'},
-      {actual: 'tmp/example3/stylesheets/social-likes/social-likes_flat.css', expected: 'test/example3/stylesheets/social-likes/social-likes_flat.css'},
       {actual: 'tmp/example3/images/fotorama/fotorama.png', expected: 'test/example3/images/fotorama/fotorama.png'},
       {actual: 'tmp/example3/images/fotorama/fotorama@2x.png', expected: 'test/example3/images/fotorama/fotorama@2x.png'},
       {actual: 'tmp/example3/js/backbone/backbone.js', expected: 'test/example3/js/backbone/backbone.js'},
@@ -94,7 +93,7 @@ exports.bower_prepare = {
       {actual: 'tmp/example3/js/underscore/underscore.js', expected: 'test/example3/js/underscore/underscore.js'}
     ];
 
-    test.expect(equalFiles.length);
+    test.expect(equalFiles.length + 2);
 
     equalFiles.forEach(function (item)
     {
@@ -102,6 +101,9 @@ exports.bower_prepare = {
       var expected = grunt.file.read(item.expected);
       test.equal(actual, expected, 'should describe what the default behavior is.');
     });
+
+    test.ok(!grunt.file.exists('tmp/example3/stylesheets/social-likes/social-likes_classic.css'), 'Exclude file work');
+    test.ok(!grunt.file.exists('tmp/example3/stylesheets/social-likes/social-likes_flat.css'), 'Exclude file work');
 
     test.done();
   }

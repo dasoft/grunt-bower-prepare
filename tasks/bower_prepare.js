@@ -82,7 +82,7 @@ module.exports = function(grunt)
     var getBowerDirectory = function ()
     {
       if (grunt.file.isFile('.bowerrc')) {
-        return grunt.file.readJSON('.bowerrc').directory;
+        return addSlashAdDir(grunt.file.readJSON('.bowerrc').directory);
       }
       var directory;
       ['bower_components', 'components'].forEach(function (dir) {
@@ -96,7 +96,7 @@ module.exports = function(grunt)
 
     var getCleanFileName = function (filename)
     {
-      return /([^\?#]*)(\?|#)?/.exec(filename)[1];
+      return (/([^\?#]*)(\?|#)?/).exec(filename)[1];
     };
 
     var getPathByExt = function (filename, packetName)
@@ -137,7 +137,7 @@ module.exports = function(grunt)
       return addSlashAdDir(dest) + packetName + filename.split('/').pop();
     };
 
-    var normilizePath = function (filepath)
+    var normalizePath = function (filepath)
     {
       var newpath = [];
       filepath = filepath.split('/');
@@ -157,14 +157,13 @@ module.exports = function(grunt)
     {
       filename = getCleanFileName(filename);
       if (grunt.file.exists(addSlashAdDir(filepath) + filename)) {
-        // console.log(filename, getPathByExt(filename, packet));
         if (getPathByExt(filename, packet)) {
-          grunt.log.writeln(normilizePath(filepath + filename), '→', normilizePath(getPathByExt(filename, packet)));
-          grunt.file.copy(normilizePath(filepath + filename), normilizePath(getPathByExt(filename, packet)));
+          grunt.log.writeln(normalizePath(filepath + filename), '→', normalizePath(getPathByExt(filename, packet)));
+          grunt.file.copy(normalizePath(filepath + filename), normalizePath(getPathByExt(filename, packet)));
         }
       }
       else {
-        grunt.log.writeln('File not found: '+ normilizePath(addSlashAdDir(filepath) + filename));
+        grunt.log.writeln('File not found: '+ normalizePath(addSlashAdDir(filepath) + filename));
       }
     };
 
@@ -226,7 +225,7 @@ module.exports = function(grunt)
           while (url = regexpUrl.exec(fileContent)) {
             regexpUrl.lastIndex;
             url = url[1].trim(); // found image or font
-            abspath = normilizePath(cssFilePath + url);
+            abspath = normalizePath(cssFilePath + url);
             if (grunt.file.exists(abspath)) {
               foundedSources.push({filename: url, localPath: createLocalPath(getPathByExt(filename, packet), getPathByExt(url, packet))});
               files.push(abspath.substr(filepath.length));
@@ -241,7 +240,7 @@ module.exports = function(grunt)
           while (imp = regexpImport.exec(fileContent)) {
             regexpImport.lastIndex;
             imp = imp[3].trim(); // found import css-file
-            abspath = normilizePath(cssFilePath + imp);
+            abspath = normalizePath(cssFilePath + imp);
             var subFiles = [abspath.substr(filepath.length)];
             var subEnrichFiles = getEnrichmentByParsingCSS(filepath, subFiles, packet);
             subFiles.forEach(function (element)
@@ -296,9 +295,49 @@ module.exports = function(grunt)
         grunt.file.write(getCleanFileName(item.filename), fileContent);
       });
     };
+    var normilizeStartPath = function (filename)
+    {
+      if (filename.substr(0, 2) == './') {
+        filename = filename.substr(2);
+      }
+      if (filename.substr(0, 1) == '/') {
+        filename = filename.substr(1);
+      }
+      return filename;
+    };
 
     var mainFiles;
-    grunt.file.expand(getBowerDirectory() + '/*').forEach(function (filepath)
+    var includeFiles = [];
+    var excludeFiles = [];
+    var bowerDir = getBowerDirectory();
+    if (data.include) {
+      data.include.forEach(function (expr)
+      {
+        grunt.file.expand(bowerDir + expr).forEach(function (filename)
+        {
+          includeFiles.push(filename.substr(bowerDir.length));
+        });
+      });
+    }
+    if (data.exclude) {
+      data.exclude.forEach(function (expr)
+      {
+        if (grunt.file.isDir(bowerDir + expr)) {
+          expr = addSlashAdDir(expr) + '**/*';
+        }
+        grunt.file.expand(bowerDir + expr).forEach(function (filename)
+        {
+          excludeFiles.push(filename.substr(bowerDir.length));
+        });
+      });
+    }
+    includeFiles.forEach(function (filename)
+    {
+      filename = normilizeStartPath(filename);
+      var pack = filename.split('/').shift();
+      copyFile(bowerDir, filename, pack);
+    });
+    grunt.file.expand(bowerDir + '*').forEach(function (filepath)
     {
       var pack = filepath.split('/').pop();
       filepath += '/';
@@ -306,16 +345,20 @@ module.exports = function(grunt)
       if (typeof mainFiles === 'string') {
         mainFiles = [mainFiles];
       }
-      if (data.additionals && data.additionals[pack]) {
-        data.additionals[pack].forEach(function (expr)
-        {
-          grunt.file.expand(filepath + expr).forEach(function (filename)
-          {
-            mainFiles.push(filename.substr(filepath.length));
-          });
-        });
-      }
       var enrichFiles = getEnrichmentByParsingCSS(filepath, mainFiles, pack);
+      var removedFiles = 0;
+      var mainFilesCopy = mainFiles.join('~~~').split('~~~');
+      mainFilesCopy.forEach(function (filename, index)
+      {
+        filename = pack +'/'+ normilizeStartPath(filename);
+        excludeFiles.forEach(function (excFilename)
+        {
+          if (excFilename == filename) {
+            mainFiles.splice(index - removedFiles, 1);
+            removedFiles++;
+          }
+        });
+      });
       mainFiles.forEach(function (filename)
       {
         copyFile(filepath, filename, pack);
