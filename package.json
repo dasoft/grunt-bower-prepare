@@ -42,6 +42,9 @@
     "grunt": "~0.4.5"
   },
   "keywords": [
-    "grunt gruntplugin bower components"
+    "grunt",
+    "gruntplugin",
+    "bower",
+    "components"
   ]
 }
