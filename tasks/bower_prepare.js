@@ -341,7 +341,7 @@ module.exports = function(grunt)
     {
       var pack = filepath.split('/').pop();
       filepath += '/';
-      mainFiles = getBowerJSON(filepath).main;
+      mainFiles = getBowerJSON(filepath).main || [];
       if (typeof mainFiles === 'string') {
         mainFiles = [mainFiles];
       }
