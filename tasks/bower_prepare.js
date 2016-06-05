@@ -127,7 +127,7 @@ module.exports = function(grunt)
       if (ext === 'svg') {
         dest = filename.indexOf('font') !== -1 ? returnOption('fonts') : returnOption('images');
       }
-      if (['eot', 'ttf', 'woff'].indexOf(ext) !== -1) {
+      if (['eot', 'ttf', 'woff','woff2'].indexOf(ext) !== -1) {
         dest = returnOption('fonts');
       }
 
